@@ -1,45 +1,84 @@
 package com.example.android.justjava;
 
+import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.NumberFormat;
 
+import static android.R.attr.contextClickable;
 import static android.R.attr.y;
+import static android.widget.Toast.makeText;
 
 /**
  * This app displays an order form to order coffee.
  */
 public class MainActivity extends AppCompatActivity {
 
-    int quantity=0;
+    int quantity=2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        /*TextView textView=new TextView(this);
+        textView.setText("Customized UI");
+        textView.setTextColor(Color.RED);
+        textView.setTextSize(36);
+        textView.setAllCaps(true);
+        setContentView(textView);
+        */
     }
 
     /**
      * This method is called when the order button is clicked.
      */
-    public void submitOrder(View view) {
-        int price= calculatePrice(quantity, 5);
-        /*String priceMessage= "Total: $" + price+"\nThank you!";
-        displayMessage(priceMessage);
-        */
-        String priceMessage=createOrderSummary(price);
-        displayMessage(priceMessage);
+    public void submitOrder(View view){
+        EditText nameEditText=(EditText)findViewById(R.id.name_edittext);
+        String name=nameEditText.getText().toString();
+        String emailSubject="Just Java order from " + name;
+
+        CheckBox whippedCreamCheckBox=(CheckBox)findViewById(R.id.whipped_cream_checkbox);
+        boolean hasWhippedCreamTopping= whippedCreamCheckBox.isChecked();
+        CheckBox chocolateCheckBox=(CheckBox) findViewById(R.id.chocolate_checkbox);
+        boolean hasChocolateTopping=chocolateCheckBox.isChecked();
+        double price= calculatePrice(hasWhippedCreamTopping, hasChocolateTopping, quantity);
+
+
+
+        String orderSummaryMessage=createOrderSummary(price, hasWhippedCreamTopping, hasChocolateTopping, name);
+        composeEmail(emailSubject, orderSummaryMessage);
+       // displayMessage(orderSummaryMessage);
     }
 
-    private int calculatePrice(int qty, int pricePerCup){
-        return (qty * pricePerCup);
+    private double calculatePrice(boolean hasWhippedCream, boolean hasChocolate, int quantity){
+        double basePrice=5.18;
+        if(hasWhippedCream){
+            basePrice+=1;
+        }
+
+        if(hasChocolate){
+            basePrice+=2;
+        }
+        return (basePrice * quantity);
     }
 
-    private String createOrderSummary(int price){
-        return "Name: Vinay P\nQuantity: "+ quantity + "\nTotal: $"+ price + "\nThank you!";
+    private String createOrderSummary(double price, boolean hasWhippedCreamTopping, boolean hasChocolateTopping, String customerName){
+        String orderSummary="Name: "+customerName;
+        orderSummary+="\nAdd whipped cream? "+ hasWhippedCreamTopping;
+        orderSummary+="\nAdd chocolate? "+ hasChocolateTopping;
+        orderSummary+="\nQuantity: "+ quantity;
+        orderSummary+="\nTotal: $"+ String.format("%.2f",price);
+        orderSummary+="\n"+getString(R.string.thank_you);
+
+        return orderSummary;
     }
 
 
@@ -51,29 +90,48 @@ public class MainActivity extends AppCompatActivity {
         quantityTextView.setText("" + number);
     }
 
-    /**
-     * This method displays the given price on the screen.
-     */
-    private void displayPrice(int number) {
-        TextView priceTextView = (TextView) findViewById(R.id.price_text_view);
-        priceTextView.setText(NumberFormat.getCurrencyInstance().format(number));
-    }
-
     public void increment(View view){
-        quantity++;
-        displayQuantity(quantity);
+        if(quantity<100){
+            quantity++;
+            displayQuantity(quantity);
+        }
+        else{
+            Toast.makeText(this, "You cannot order more than 100 cups of coffee", Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void decrement(View view){
-        quantity--;
-        displayQuantity(quantity);
+        if(quantity>1){
+            quantity--;
+            displayQuantity(quantity);
+        }
+        else{
+            Toast.makeText(this, "You cannot order less than 1 coffee", Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
      * This method displays the given text on the screen.
      */
-    private void displayMessage(String message) {
-        TextView priceTextView = (TextView) findViewById(R.id.price_text_view);
-        priceTextView.setText(message);
+//    private void displayMessage(String message) {
+//        TextView orderSummaryTextView = (TextView) findViewById(R.id.order_summary_text_view);
+//        orderSummaryTextView.setText(message);
+//    }
+
+    public void composeEmail(String subject, String emailBody) {
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:")); // only email apps should handle this
+        //intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"vinayp@outlook.com"});
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, emailBody);
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        intent.setData(Uri.parse("geo:47.6,-122.3"));
+//        if (intent.resolveActivity(getPackageManager()) != null) {
+//            startActivity(intent);
+//        }
     }
 }

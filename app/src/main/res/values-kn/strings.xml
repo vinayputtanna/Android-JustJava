@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Just Java</string>
+    <string name="customer_name">Hesaru</string>
+    <string name="quantity"></string>
+    <string name="topping_chocolate">Chocolate</string>
+    <string name="thank_you">Dhanyavada</string>
+</resources>
