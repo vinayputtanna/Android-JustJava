@@ -22,7 +22,7 @@ import static android.widget.Toast.makeText;
  */
 public class MainActivity extends AppCompatActivity {
 
-    int quantity=2;
+    private int quantity=2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +51,18 @@ public class MainActivity extends AppCompatActivity {
         boolean hasChocolateTopping=chocolateCheckBox.isChecked();
         double price= calculatePrice(hasWhippedCreamTopping, hasChocolateTopping, quantity);
 
-
-
         String orderSummaryMessage=createOrderSummary(price, hasWhippedCreamTopping, hasChocolateTopping, name);
         composeEmail(emailSubject, orderSummaryMessage);
        // displayMessage(orderSummaryMessage);
     }
 
+    /**
+     * Calculates order price
+     * @param hasWhippedCream
+     * @param hasChocolate
+     * @param quantity
+     * @return
+     */
     private double calculatePrice(boolean hasWhippedCream, boolean hasChocolate, int quantity){
         double basePrice=5.18;
         if(hasWhippedCream){
@@ -70,6 +75,14 @@ public class MainActivity extends AppCompatActivity {
         return (basePrice * quantity);
     }
 
+    /**
+     * Creates order summary
+     * @param price
+     * @param hasWhippedCreamTopping
+     * @param hasChocolateTopping
+     * @param customerName
+     * @return
+     */
     private String createOrderSummary(double price, boolean hasWhippedCreamTopping, boolean hasChocolateTopping, String customerName){
         String orderSummary="Name: "+customerName;
         orderSummary+="\nAdd whipped cream? "+ hasWhippedCreamTopping;
@@ -90,6 +103,10 @@ public class MainActivity extends AppCompatActivity {
         quantityTextView.setText("" + number);
     }
 
+    /**
+     * Increments the order quantity by 1
+     * @param view
+     */
     public void increment(View view){
         if(quantity<100){
             quantity++;
@@ -100,6 +117,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Decrements the order quantity by 1
+     * @param view
+     */
     public void decrement(View view){
         if(quantity>1){
             quantity--;
@@ -118,6 +139,10 @@ public class MainActivity extends AppCompatActivity {
 //        orderSummaryTextView.setText(message);
 //    }
 
+    /**
+     * Composes email message and starts the email activity
+     * @param view
+     */
     public void composeEmail(String subject, String emailBody) {
         Intent intent = new Intent(Intent.ACTION_SENDTO);
         intent.setData(Uri.parse("mailto:")); // only email apps should handle this
